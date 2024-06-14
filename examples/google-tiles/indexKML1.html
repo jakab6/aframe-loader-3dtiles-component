@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>A-Frame with Cesium and KML integration</title>
+    <meta name="description" content="A-Frame example showing KML data with Cesium.">
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Cesium.js"></script>
+    <link href="https://cesium.com/downloads/cesiumjs/releases/1.118/Build/Cesium/Widgets/widgets.css" rel="stylesheet">
+    <style>
+      #cesiumContainer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+      }
+      a-scene {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+        background: transparent;
+      }
+      #guide {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 300px;
+        padding: 1rem 2rem;
+        font-family: 'Courier New', Courier, monospace;
+        line-height: 1.2;
+        background-color: white;
+        color: black;
+      }
+      #guide p {
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="cesiumContainer"></div>
+    <a-scene vr-mode-ui="enabled: false">
+      <a-entity id="cameraRig">
+        <a-entity id="camera" camera="fov:45; near:1; far: 1000" look-controls="reverseMouseDrag: true" wasd-controls="enabled: true"></a-entity>
+        <a-entity id="left-hand" oculus-touch-controls="hand: left" blink-controls></a-entity>
+        <a-entity id="right-hand" oculus-touch-controls="hand: right"></a-entity>
+      </a-entity>
+    </a-scene>
+
+    <div id="guide">
+      <span id="example-desc">
+        <b>KML data example with Cesium.</b>
+      </span>
+      <p>Use arrow/WASD keys to move around and click and drag to turn/rotate the camera.</p>
+      <p>
+        <u>Available component parameters:</u>
+        <ul>
+          <li><b>lat, long</b>: coordinates of Google Map.</li>
+          <li><b>height</b>: camera height.</li>
+          <li><b>googleApiKey</b>: Google Api Key.</li>
+        </ul>
+      </p>
+    </div>
+
+    <script>
+      // Grant CesiumJS access to your ion assets
+      Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4MWM1MjBmOS00YTRmLTQzOGYtYTBjYy03MDlmYmFlMjkzNDgiLCJpZCI6NjMxNTcsImlhdCI6MTcxODM1NDc0M30.WdedKqHX6nFp6u05wd9E6i0tbAttBMr0v9cauoaHTFo";
+
+      // Initialize Cesium Viewer
+      const viewer = new Cesium.Viewer("cesiumContainer");
+
+      // Load KML file
+      const loadKML = async () => {
+        try {
+          const resource = await Cesium.IonResource.fromAssetId(617896); // Replace with your asset ID or URL
+          const dataSource = await Cesium.KmlDataSource.load(resource, {
+            camera: viewer.scene.camera,
+            canvas: viewer.scene.canvas,
+          });
+          await viewer.dataSources.add(dataSource);
+          await viewer.zoomTo(dataSource);
+        } catch (error) {
+          console.error('Error loading KML file:', error);
+        }
+      };
+
+      loadKML();
+    </script>
+  </body>
+</html>
